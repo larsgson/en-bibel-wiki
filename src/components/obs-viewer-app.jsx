@@ -21,11 +21,12 @@ const OBSPictureNavigationApp = ({topIdStr,onClose}) => {
   const mPlayObj = useMediaPlayer()
   const { startPlay, isPaused, syncImgSrc } = mPlayObj
 
-  const handleStartBiblePlay = (curSerie,id) => {
+  const handleStartBiblePlay = (curSerie,id,level1) => {
     const useInx = id-1
     if (curSerie?.episodeList) {
       if ((useInx>=0) && (useInx<curSerie?.episodeList?.length)) {
-        startPlay(topIdStr,id,curSerie,curSerie.episodeList[useInx])
+        const curEp = {...curSerie.episodeList[useInx],level1}    
+        startPlay(topIdStr,id,curSerie,curEp)
       }
     }
   }

@@ -364,7 +364,6 @@ console.log("handleFinishedPlaying")
         }
         locURL = curFName
         locPath = locURL
-        console.log(locPath)
         audioFound = true
       }
     }

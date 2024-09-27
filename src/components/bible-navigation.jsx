@@ -7,8 +7,8 @@ import ChevronLeft from '@mui/icons-material/ChevronLeft'
 import ImageList from '@mui/material/ImageList'
 import ImageListItem from '@mui/material/ImageListItem'
 import ImageListItemBar from '@mui/material/ImageListItemBar'
-import { pad } from '../utils/obj-functions'
-import { rangeArray } from '../utils/obj-functions'
+import { rangeArray, pad, isEmptyObj } from '../utils/obj-functions'
+import { obsTitles, obsStoryList } from '../constants/obsHierarchy'
 import { osisIconId, osisIconList } from '../constants/osisIconList'
 import { getOsisChTitle, getChoiceTitle } from '../constants/osisChTitles'
 import useBrowserData from '../hooks/useBrowserData'
@@ -22,6 +22,21 @@ import { naviSortOrder, chInBook,
           naviBooksLevel1, naviBooksLevel2, naviChapters } from '../constants/naviChapters'
 import DailyTeaserView from './daily-teaser-view'
 import { gospelOfJohnObj } from '../constants/naviChaptersJohn'
+
+const bibleDataEnOBSStory = {
+  freeType: false,
+  curPath: "",
+  title: "Open Bible Stories",
+  description: "",
+  image: {
+      origin: "Local",
+      filename: ""
+  },
+  language: "eng",
+  mediaType: "audio",
+  episodeList: obsStoryList,
+  uniqueID: "uW.OBS.en"
+}
 
 const topObjList = {
   "en-jhn-plan": {
@@ -51,6 +66,7 @@ const useSerie = {
   "en-audio-bible-WEB": bibleDataEN,
   "de-jhn-serie": gospelOfJohnObj,
   "en-jhn-serie": gospelOfJohnObj,
+  "en-audio-OBS": bibleDataEnOBSStory,
 }
 
 const serieLang = {
@@ -86,8 +102,9 @@ const SerieGridBar = (props) => {
 
 const BibleNavigation = (props) => {
   // eslint-disable-next-line no-unused-vars
-  const { size, largeScreen } = useBrowserData()
-  const { navHist, startPlay } = useMediaPlayer()
+  const { size, width } = useBrowserData()
+  const { navHist, startPlay, curPlay, syncImgSrc } = useMediaPlayer()
+  const isPlaying = !isEmptyObj(curPlay)
   const { t } = useTranslation()
   const { onExitNavigation, onStartPlay } = props
 
@@ -115,7 +132,7 @@ const BibleNavigation = (props) => {
 
   const getChIcon = (key,lev1,lev2,bookObj,ch) => {
     let checkIcon = "000-" + pad(lev1)
-    if (lev2!=null) checkIcon = "00-" + pad(level1) + lev2
+    if (lev2!=null) checkIcon = "00-" + pad(lev1) + lev2
     let imgSrc
     let checkTitle
     const lng = serieLang[level0]
@@ -215,7 +232,6 @@ const BibleNavigation = (props) => {
   }
 
   const handleHistoryClick = (obj) => {
-    console.log(obj)
     const useLevel0 = obj?.ep?.topIdStr
     setLevel0(useLevel0)
     const curSerie = {...useSerie[useLevel0], language: serieLang[useLevel0] }
@@ -226,6 +242,9 @@ const BibleNavigation = (props) => {
       setCurLevel(4)
       const bObj = obj?.ep?.bookObj
       onStartPlay(useLevel0,curSerie,bObj,obj?.ep?.id)
+    } else if (serieNaviType[useLevel0] === "audioStories") {
+      setCurLevel(1)
+      startPlay(useLevel0,obj?.ep?.id,curSerie,obj?.ep)
     } else if (serieNaviType[useLevel0] === "videoSerie") {
       setCurLevel(1)
       startPlay(useLevel0,obj?.ep?.id,curSerie,obj?.ep)
@@ -323,7 +342,11 @@ const BibleNavigation = (props) => {
   const myList = navHist && Object.keys(navHist).filter(key => {
     const navObj = navHist[key]
     const useLevel0 = navObj?.topIdStr
-    return ((serieNaviType[useLevel0] === "audioBible") || ((serieNaviType[useLevel0] === "videoSerie")))
+    return (
+      (serieNaviType[useLevel0] === "audioBible") 
+      || (serieNaviType[useLevel0] === "audioStories")
+      || (serieNaviType[useLevel0] === "videoSerie")
+    )
   }).map(key => {
     const navObj = navHist[key]
     const useLevel0 = navObj?.topIdStr
@@ -342,6 +365,15 @@ const BibleNavigation = (props) => {
         descr: epObj.subtitle,
         ep: navHist[key]
       }
+    } else if (serieNaviType[useLevel0] === "audioStories") {
+      return {
+        key,
+        id: key,
+        imageSrc: navObj?.image?.filename,
+        title: navObj.title,
+        descr: navObj.subtitle,
+        ep: navHist[key]
+      }  
     } else if (serieNaviType[useLevel0] === "videoSerie") {
       const useLng = serieLang[useLevel0]
       return {
@@ -356,7 +388,7 @@ const BibleNavigation = (props) => {
   }) || []
   return (
     <div>
-      {(naviType==="audioBible") && (curLevel>1) && (
+      {(naviType==="audioBible") && (!isPlaying) && (curLevel>1) && (
         <Fab
           onClick={navigateHome}
           // className={largeScreen ? classes.exitButtonLS : classes.exitButton}
@@ -365,7 +397,7 @@ const BibleNavigation = (props) => {
           <Home/>
         </Fab>
       )}
-      {!rootLevel && (naviType==="audioBible") && (
+      {!rootLevel && (!isPlaying) && (naviType==="audioBible") && (
         <Fab
           onClick={handleReturn}
           // className={largeScreen ? classes.exitButtonLS : classes.exitButton}
@@ -398,8 +430,8 @@ const BibleNavigation = (props) => {
       >Bibel Wiki</Typography>)}
       {(naviType==="videoPlan") && <BibleviewerApp onClose={handleClose} topIdStr={level0} lng={lng}/>}
       {(naviType==="videoSerie") && <GospelJohnNavi onClose={handleClose} topIdStr={level0} lng={lng}/>}
-      {(naviType==="audioStories") && <OBSPictureNavigationApp topIdStr={level0} onClose={handleClose}/>}
-      {(naviType==="audioBible") && (<ImageList
+      {(naviType==="audioStories") && (!isPlaying) && <OBSPictureNavigationApp topIdStr={level0} onClose={handleClose}/>}
+      {(naviType==="audioBible") && (!isPlaying) && (<ImageList
         rowHeight="auto"
         cols={useCols}
       >
@@ -420,7 +452,28 @@ const BibleNavigation = (props) => {
             </ImageListItem>
           )
         })}
-      </ImageList>)}
+        </ImageList>
+      )}
+      {((naviType==="audioStories") || (naviType==="audioBible")) && (isPlaying) && (
+      <>
+        <Typography
+          type="title"
+        >{obsTitles[level2-1]}</Typography>
+        <ImageList
+          rowHeight={width / 1.77}
+          cols={1}
+        >
+          <ImageListItem
+            onClick={(ev) => handleClick(ev,"1",false)}
+            key="1"
+          >
+            <img src={syncImgSrc} />
+          </ImageListItem>
+        </ImageList>
+        <Typography
+          type="title"
+        ><br/><br/></Typography>
+      </>)}
     </div>
   )
 }

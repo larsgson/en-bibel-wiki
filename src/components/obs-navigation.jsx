@@ -21,6 +21,7 @@ const bibleData = {
   language: "eng",
   mediaType: "audio",
   episodeList: obsStoryList,
+  uniqueID: "uW.OBS.en"
 }
 
 const SerieGridBar = (props) => {
@@ -53,7 +54,7 @@ const OBSNavigation = (props) => {
       setLevel1(id)
       setCurLevel(2)
     } else if (curLevel===2){
-      onStartPlay(curSerie,id)
+      onStartPlay(curSerie,id,level1)
       setLevel2(id)
       setCurLevel(3)
     } else {
