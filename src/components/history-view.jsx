@@ -3,13 +3,9 @@ import CardContent from '@mui/material/CardContent'
 import ImageList from '@mui/material/ImageList'
 import ImageListItem from '@mui/material/ImageListItem'
 import Typography from '@mui/material/Typography'
-import AddIcon from '@mui/icons-material/Add'
-import RemoveIcon from '@mui/icons-material/Remove'
-import Fab from '@mui/material/Fab'
 import { getImgOfObj } from '../utils/obj-functions'
 import ItemBarEpisode from './item-bar-episode'
 import useBrowserData from '../hooks/useBrowserData'
-import useMediaPlayer from "../hooks/useMediaPlayer"
 import { useTranslation } from 'react-i18next'
 
 const HistoryView = (props) => {

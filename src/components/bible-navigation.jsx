@@ -422,7 +422,7 @@ const BibleNavigation = (props) => {
         <HistoryView
           onClick={(item) => handleHistoryClick(item)} 
           epList={myList}
-          lng={lng}
+          lng={"en"}
         />      
       )}
       {(naviType==="audioBible") && (<Typography
