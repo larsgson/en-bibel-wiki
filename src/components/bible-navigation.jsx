@@ -135,7 +135,8 @@ const BibleNavigation = (props) => {
     if (lev2!=null) checkIcon = "00-" + pad(lev1) + lev2
     let imgSrc
     let checkTitle
-    const lng = serieLang[level0]
+    // const lng = serieLang[level0]
+    const lng = "en"
     const bk = (bookObj!=null)?bookObj.bk:null
     if (bk!=null){ // level 3
       const checkObj = osisIconList[bk]

@@ -119,7 +119,6 @@ console.log("onFinishedPlaying")
           const firstId = pad(parseInt(useCh))
           const firstEntry = checkObj[useCh][0]
           checkIcon = osisIconId[bk] + "_" + firstId + "_" + firstEntry
-          console.log(checkIcon)
         }
       }
 // Book Icon - To Do - to be added in the future
@@ -133,7 +132,7 @@ console.log("onFinishedPlaying")
     let subtitle
     if (bk==null){ // level 1 and 2
       const checkStr = checkIcon + "-descr"
-      subtitle = t(checkStr, { lng: serieLang[level0] })
+      subtitle = t(checkStr, { lng })
       if (subtitle===checkStr) subtitle = ""
     } else if (ch==null){ // level 3
       const {beg,end} = bookObj
